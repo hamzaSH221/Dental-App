@@ -498,10 +498,35 @@ function pageAdmin() {
 }
 
 function pageForPractices() {
+  let selectedTier = '';
+  function makeTier(name, price, gold, features) {
+    const t = el('div', { class: 'tier' + (gold ? ' gold' : ''), role: 'button', tabindex: '0', 'aria-pressed': 'false',
+      onclick: () => selectTier(name, t),
+      onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTier(name, t); } } },
+      el('span', { class: 'pick-flag' }, '\u2713 Selected'),
+      el('h3', {}, gold ? name + ' \u2726' : name),
+      el('p', { class: 'price' }, price, el('small', {}, ' /month')),
+      el('ul', {}, ...features.map(f => el('li', {}, f))));
+    return t;
+  }
+  const tierEls = [
+    makeTier('Standard', '\u00A329', false, ['Full practice profile & services list', 'Unlimited patient registrations', 'Clinic dashboard & email alerts', 'Verified badge after our checks']),
+    makeTier('Featured', '\u00A369', true, ['Everything in Standard', 'Pinned to the top of search results', 'Gold highlighted listing', 'Priority support']),
+  ];
+  function selectTier(name, elm) {
+    selectedTier = name;
+    tierEls.forEach(t => t.setAttribute('aria-pressed', String(t === elm)));
+    const hidden = document.getElementById('selected_tier');
+    if (hidden) hidden.value = name;
+    const note = document.getElementById('tier-note');
+    if (note) note.textContent = `You\u2019ve selected the ${name} plan \u2014 it\u2019ll be included with your application.`;
+  }
+
   const err = el('div', { class: 'form-error', hidden: true });
   const form = el('form', { class: 'stack', onsubmit: async (e) => {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.target).entries());
+    if (selectedTier) f.message = `[Interested in: ${selectedTier} plan] ` + (f.message || '');
     try {
       const d = await api('/practice-leads', { method: 'POST', body: f });
       main.replaceChildren(
@@ -510,9 +535,10 @@ function pageForPractices() {
           el('p', {}, d.message),
           el('p', { class: 'muted' }, 'We\u2019ll review your practice details and get back to you about listing options and verification.')));
       window.scrollTo(0, 0);
-    } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; window.scrollTo(0, 0); }
   } },
     err,
+    el('input', { type: 'hidden', id: 'selected_tier', name: 'selected_tier' }),
     field('Practice name', inp('practice_name', { required: true })),
     field('Your name', inp('contact_name', { required: true })),
     field('Work email', inp('email', { type: 'email', required: true })),
@@ -531,25 +557,9 @@ function pageForPractices() {
       el('div', { class: 'fp-point' }, el('b', {}, 'Verified reviews only'), el('p', {}, 'Only patients who genuinely registered with your practice through DentaLink can review you \u2014 no anonymous review-bombing.')),
       el('div', { class: 'fp-point' }, el('b', {}, 'Email alerts'), el('p', {}, 'Get an email the moment a new patient registers, alongside the dashboard \u2014 nothing slips through.')),
     ),
-    el('h2', { class: 'page-title center', style: 'font-size:1.5rem' }, 'Listing options'),
-    el('div', { class: 'tiers' },
-      el('div', { class: 'tier' },
-        el('h3', {}, 'Standard'),
-        el('p', { class: 'price' }, '\u00A329', el('small', {}, ' /month')),
-        el('ul', {},
-          el('li', {}, 'Full practice profile & services list'),
-          el('li', {}, 'Unlimited patient registrations'),
-          el('li', {}, 'Clinic dashboard & email alerts'),
-          el('li', {}, 'Verified badge after our checks'))),
-      el('div', { class: 'tier gold' },
-        el('h3', {}, 'Featured \u2726'),
-        el('p', { class: 'price' }, '\u00A369', el('small', {}, ' /month')),
-        el('ul', {},
-          el('li', {}, 'Everything in Standard'),
-          el('li', {}, 'Pinned to the top of search results'),
-          el('li', {}, 'Gold highlighted listing'),
-          el('li', {}, 'Priority support'))),
-    ),
+    el('h2', { class: 'page-title center', style: 'font-size:1.5rem' }, 'Choose a listing option'),
+    el('div', { class: 'tiers', role: 'group', 'aria-label': 'Listing options' }, ...tierEls),
+    el('p', { class: 'muted center', id: 'tier-note', style: 'margin:-.5rem auto 1rem;max-width:50ch' }, 'Tap a plan to select it \u2014 we\u2019ll note your choice on your application.'),
     el('h2', { class: 'page-title center', style: 'font-size:1.5rem' }, 'Apply to get listed'),
     el('div', { class: 'card-page' }, form),
   );
@@ -608,5 +618,17 @@ window.addEventListener('hashchange', route);
   try { const d = await api('/auth/me'); ME = d.user; } catch {}
   renderNav();
   route();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    try {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      if (typeof navigator.serviceWorker.addEventListener === 'function') {
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          location.reload();
+        });
+      }
+    } catch (e) { /* service workers unavailable — the site still works fine */ }
+  }
 })();

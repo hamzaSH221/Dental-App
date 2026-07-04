@@ -64,16 +64,22 @@ export default function DirectoryScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
         ListEmptyComponent={<Text style={s.empty}>No practices match yet — try widening your search.</Text>}
         renderItem={({ item }) => (
-          <TouchableOpacity style={s.card} onPress={() => navigation.navigate('Clinic', { id: item.id })}>
+          <TouchableOpacity style={[s.card, item.featured && s.cardFeatured]} onPress={() => navigation.navigate('Clinic', { id: item.id })}>
             <View style={[s.spine, { backgroundColor: COLORS[item.type] }]} />
             <View style={s.cardBody}>
-              <Text style={s.name}>{item.name}</Text>
+              {item.featured ? <Text style={s.featuredFlag}>✦ FEATURED</Text> : null}
+              <View style={s.nameRow}>
+                <Text style={s.name}>{item.name}{item.verified ? <Text style={s.vtick}> ✓</Text> : null}</Text>
+                <Text style={[s.typeTag, { backgroundColor: COLORS[item.type] }]}>{TYPE_LABEL[item.type]}</Text>
+              </View>
+              <Text style={s.stars}>
+                {item.review_count ? '★'.repeat(Math.round(item.rating)) + '☆'.repeat(5 - Math.round(item.rating)) + '  ' + item.rating + ' (' + item.review_count + ')' : 'No reviews yet'}
+              </Text>
               <Text style={s.meta}>{item.area} · {item.postcode}</Text>
               <View style={s.badgeRow}>
                 <Text style={[s.badge, item.accepting_new ? s.badgeOpen : s.badgeClosed]}>
-                  {item.accepting_new ? 'Accepting new patients' : 'List full'}
+                  {item.accepting_new ? '✓ Accepting new patients' : 'List full'}
                 </Text>
-                <Text style={[s.badge, s.badgePlain]}>{TYPE_LABEL[item.type]}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -95,9 +101,15 @@ const s = StyleSheet.create({
   chipText: { color: COLORS.ink, fontWeight: '600' },
   chipTextOn: { color: '#0A1220' },
   card: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 14, borderWidth: 1, borderColor: COLORS.line, marginBottom: 10, overflow: 'hidden' },
+  cardFeatured: { borderColor: 'rgba(217,179,107,0.7)' },
   spine: { width: 8 },
   cardBody: { flex: 1, padding: 12 },
-  name: { fontSize: 17, fontWeight: '700', color: COLORS.ink },
+  featuredFlag: { color: COLORS.gold, fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: 2 },
+  nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
+  name: { fontSize: 17, fontWeight: '700', color: COLORS.ink, flex: 1 },
+  vtick: { color: COLORS.tealBright, fontWeight: '800' },
+  typeTag: { color: '#0A1220', fontSize: 10, fontWeight: '800', letterSpacing: 0.5, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, overflow: 'hidden' },
+  stars: { color: COLORS.gold, fontSize: 13, marginTop: 3 },
   meta: { color: COLORS.inkSoft, marginTop: 2, marginBottom: 8 },
   badgeRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   badge: { fontSize: 12, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, overflow: 'hidden' },

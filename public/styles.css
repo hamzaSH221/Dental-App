@@ -32,6 +32,9 @@ main,header,footer{position:relative;z-index:1}
 .skip:focus{left:0}
 a{color:var(--teal)}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+a, button, select, [role="button"], [onclick], summary, label.check, .chip, .tier, .clinic-card, .star-pick button, input[type="checkbox"], input[type="radio"]{cursor:pointer}
+button:disabled, .btn:disabled{cursor:not-allowed}
+select{cursor:pointer}
 
 /* header */
 .site-head{padding:.9rem clamp(1rem,4vw,2rem);
@@ -72,7 +75,7 @@ main{width:100%;max-width:1120px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 3r
 
 /* clinic cards — compact premium grid, cost-band spine kept as the signature */
 .clinic-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem}
-.clinic-card{display:block;background:var(--bg-raise);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease}
+.clinic-card{display:block;background:var(--bg-raise);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease}
 .clinic-card:hover{transform:translateY(-3px);border-color:rgba(217,179,107,.55);box-shadow:var(--shadow)}
 .clinic-card.featured{border-color:rgba(217,179,107,.7);background:linear-gradient(180deg, rgba(217,179,107,.07), var(--bg-raise) 45%)}
 .featured-flag{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
@@ -180,7 +183,11 @@ table.data th{background:var(--bg-soft);font-size:.78rem;letter-spacing:.08em;te
 .fp-point b{display:block;font-family:var(--display);font-size:1.1rem;margin-bottom:.35rem;color:var(--gold)}
 .fp-point p{margin:0;color:var(--ink-soft);font-size:.95rem}
 .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem;margin:1.2rem 0 2rem;max-width:760px;margin-left:auto;margin-right:auto}
-.tier{background:var(--bg-raise);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem}
+.tier{background:var(--bg-raise);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem;cursor:pointer;transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;position:relative}
+.tier:hover{transform:translateY(-3px);border-color:rgba(217,179,107,.6);box-shadow:var(--shadow)}
+.tier[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold), var(--shadow)}
+.tier .pick-flag{position:absolute;top:.8rem;right:.9rem;font-size:.72rem;font-weight:800;color:var(--gold);opacity:0;transition:opacity .15s}
+.tier[aria-pressed="true"] .pick-flag{opacity:1}
 .tier.gold{border-color:rgba(217,179,107,.7);background:linear-gradient(180deg, rgba(217,179,107,.08), var(--bg-raise) 50%)}
 .tier h3{font-family:var(--display);margin:0 0 .2rem}
 .tier .price{font-family:var(--display);font-size:1.9rem;color:var(--gold);margin:.2rem 0 .7rem}

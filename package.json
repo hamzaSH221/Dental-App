@@ -1,10 +1,11 @@
 {
-  "name": "dentalink-manchester",
+  "name": "dentalink",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "test": "node test-suite.js && node test-frontend.js"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +19,8 @@
     "jsonwebtoken": "^9.0.3",
     "node-sqlite3-wasm": "^0.8.59",
     "nodemailer": "^9.0.3"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
   }
 }

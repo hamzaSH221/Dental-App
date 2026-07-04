@@ -31,7 +31,10 @@ export default function ClinicScreen({ route, navigation }) {
       <View style={[s.pill, { backgroundColor: COLORS[clinic.type] }]}>
         <Text style={s.pillText}>{TYPE_LABEL[clinic.type]}</Text>
       </View>
-      <Text style={s.name}>{clinic.name}</Text>
+      <Text style={s.name}>{clinic.name}{clinic.verified ? <Text style={s.vtick}> ✓</Text> : null}</Text>
+      {clinic.review_count ? (
+        <Text style={s.stars}>{'★'.repeat(Math.round(clinic.rating)) + '☆'.repeat(5 - Math.round(clinic.rating))}  {clinic.rating} ({clinic.review_count})</Text>
+      ) : <Text style={s.noReviews}>No reviews yet</Text>}
       <Text style={s.meta}>{clinic.address}, {clinic.postcode} · {clinic.area}</Text>
       <Text style={[s.badge, clinic.accepting_new ? s.badgeOpen : s.badgeClosed]}>
         {clinic.accepting_new ? 'Accepting new patients' : 'New patient list currently full'}
@@ -79,6 +82,9 @@ const s = StyleSheet.create({
   pill: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 8 },
   pillText: { color: '#0A1220', fontWeight: '800', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 },
   name: { fontSize: 24, fontWeight: '800', color: COLORS.ink },
+  vtick: { color: COLORS.tealBright, fontWeight: '800' },
+  stars: { color: COLORS.gold, fontSize: 15, marginTop: 4 },
+  noReviews: { color: COLORS.inkSoft, fontSize: 13, marginTop: 4 },
   meta: { color: COLORS.inkSoft, marginTop: 2 },
   badge: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginTop: 10, overflow: 'hidden' },
   badgeOpen: { backgroundColor: 'rgba(83,206,147,0.15)', color: COLORS.ok },
