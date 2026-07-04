@@ -88,9 +88,21 @@ function pageHome() {
   );
   api('/clinics?accepting=1').then(d => {
     const list = document.getElementById('homelist');
-    if (list) list.replaceChildren(...d.clinics.slice(0, 4).map(clinicCard),
-      el('p', {}, el('a', { href: '#/clinics' }, 'See all practices \u2192')));
-  }).catch(e => toast(e.message));
+    if (!list) return;
+    if (!d.clinics || d.clinics.length === 0) {
+      list.replaceChildren(el('p', { class: 'muted' }, 'No practices are listed as accepting new patients right now. ',
+        el('a', { href: '#/clinics' }, 'Browse all practices \u2192')));
+      return;
+    }
+    list.replaceChildren(...d.clinics.slice(0, 6).map(clinicCard),
+      el('p', { style: 'grid-column:1/-1' }, el('a', { href: '#/clinics' }, 'See all practices \u2192')));
+  }).catch(() => {
+    const list = document.getElementById('homelist');
+    if (list) list.replaceChildren(
+      el('p', { class: 'muted' }, 'Couldn\u2019t load practices just now. ',
+        el('a', { href: '#', onclick: (e) => { e.preventDefault(); pageHome(); } }, 'Try again'),
+        ' or ', el('a', { href: '#/clinics' }, 'browse all practices')));
+  });
 }
 
 function clinicCard(c) {
@@ -555,25 +567,38 @@ function pageHow() {
 }
 
 /* ---------- router ---------- */
+function renderError(msg) {
+  main.replaceChildren(
+    el('h1', { class: 'page-title center' }, 'Something went wrong'),
+    el('div', { class: 'card-page', style: 'text-align:center' },
+      el('p', {}, msg || 'That page didn\u2019t load properly.'),
+      el('a', { class: 'btn primary', href: '#/', onclick: () => setTimeout(route, 0) }, 'Back to home'),
+      el('p', { style: 'margin-top:1rem' }, el('a', { href: '#/clinics' }, 'Find a dentist'))));
+}
+
 function route() {
   const hash = location.hash || '#/';
   const [path, query] = hash.slice(1).split('?');
   const params = new URLSearchParams(query || '');
   const parts = path.split('/').filter(Boolean);
   window.scrollTo(0, 0);
-  if (parts.length === 0) return pageHome();
-  switch (parts[0]) {
-    case 'clinics': return pageClinics(params);
-    case 'clinic': return pageClinic(parts[1]);
-    case 'register': return pageRegister(parts[1]);
-    case 'signup': return pageSignup();
-    case 'login': return pageLogin();
-    case 'my-registrations': return pageMyRegistrations();
-    case 'clinic-dashboard': return pageClinicDashboard();
-    case 'admin': return pageAdmin();
-    case 'how-it-works': return pageHow();
-    case 'for-practices': return pageForPractices();
-    default: return pageHome();
+  try {
+    if (parts.length === 0) return pageHome();
+    switch (parts[0]) {
+      case 'clinics': return pageClinics(params);
+      case 'clinic': return pageClinic(parts[1]);
+      case 'register': return pageRegister(parts[1]);
+      case 'signup': return pageSignup();
+      case 'login': return pageLogin();
+      case 'my-registrations': return pageMyRegistrations();
+      case 'clinic-dashboard': return pageClinicDashboard();
+      case 'admin': return pageAdmin();
+      case 'how-it-works': return pageHow();
+      case 'for-practices': return pageForPractices();
+      default: return pageHome();
+    }
+  } catch (e) {
+    renderError(e && e.message);
   }
 }
 
