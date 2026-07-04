@@ -1,13 +1,23 @@
-// Database layer — uses Node's built-in SQLite (node >= 22), all queries parameterised.
-const { DatabaseSync } = require('node:sqlite');
+// Database layer — uses node-sqlite3-wasm (pure JS, no compilation, works on any Node), all queries parameterised.
+const { Database } = require('node-sqlite3-wasm');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'dentalink.db');
 require('fs').mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-const db = new DatabaseSync(DB_PATH);
-db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+const raw = new Database(DB_PATH);
+raw.exec('PRAGMA foreign_keys = ON;');
+
+// Thin compatibility layer so the rest of the app keeps calling db.exec / db.prepare(sql).get(...args)
+const db = {
+  exec: (sql) => raw.exec(sql),
+  prepare: (sql) => ({
+    get: (...args) => raw.get(sql, args.length ? args : undefined) || undefined,
+    all: (...args) => raw.all(sql, args.length ? args : undefined),
+    run: (...args) => raw.run(sql, args.length ? args : undefined),
+  }),
+};
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
