@@ -1,0 +1,13 @@
+{
+  "name": "DentaLink",
+  "short_name": "DentaLink",
+  "description": "Find NHS, mixed and private dentists across Greater Manchester.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A1220",
+  "theme_color": "#D9B36B",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

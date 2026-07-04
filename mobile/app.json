@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "DentaLink",
+    "slug": "dentalink-manchester",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": { "backgroundColor": "#0A1220" },
+    "ios": {
+      "bundleIdentifier": "uk.co.dentalink.manchester",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "uk.co.dentalink.manchester",
+      "adaptiveIcon": { "backgroundColor": "#0A1220" }
+    }
+  }
+}
